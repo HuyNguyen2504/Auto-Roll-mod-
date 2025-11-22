@@ -1,15 +1,9 @@
 """
 Mouse & Region Saver - B1 popup (Name + Description)
-Hotkeys:
- - Ctrl+B : save coordinate (coords table)
- - Ctrl+P : two-step region saving:
-     * press once -> save origin point (x1,y1) and enter "waiting" state
-     * press second time -> compute width/height, open popup (Name + Description). If OK -> save region.
- - Esc or Ctrl+B while waiting -> cancel region creation.
-
-Implementation notes:
- - Uses `keyboard` for global hotkeys.
- - SQLite used for persistent storage.
+Updated Features:
+ - Added "Delete All" buttons for both tables.
+ - Hidden ID columns in both tables.
+ - Hidden Description column in Regions table.
 """
 
 import sys
@@ -72,6 +66,11 @@ class Database:
         self.conn.execute(q, (row_id,))
         self.conn.commit()
 
+    def delete_all_coords(self):
+        q = "DELETE FROM coords"
+        self.conn.execute(q)
+        self.conn.commit()
+
     def update_coord(self, row_id, name, x, y):
         q = "UPDATE coords SET name = ?, x = ?, y = ? WHERE id = ?"
         self.conn.execute(q, (name, x, y, row_id))
@@ -94,6 +93,11 @@ class Database:
         self.conn.execute(q, (row_id,))
         self.conn.commit()
 
+    def delete_all_regions(self):
+        q = "DELETE FROM regions"
+        self.conn.execute(q)
+        self.conn.commit()
+
     def update_region(self, row_id, name, description, x1, y1, width, height):
         q = """UPDATE regions SET name=?, description=?, x1=?, y1=?, width=?, height=? WHERE id=?"""
         self.conn.execute(q, (name, description, x1, y1, width, height, row_id))
@@ -109,7 +113,7 @@ class Database:
 class RegionDialog(QDialog):
     def __init__(self, default_name="", default_description="", parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Region Info (Name & Description)")
+        self.setWindowTitle("Region Info")
         self.setModal(True)
 
         self.name_edit = QLineEdit(default_name)
@@ -168,7 +172,7 @@ class MouseRegionApp(QWidget):
         super().__init__()
         self.db = Database()
 
-        self.setWindowTitle("Mouse & Region Saver — B1 Popup")
+        self.setWindowTitle("Mouse & Region Saver — Final")
         self.setGeometry(100, 100, 900, 600)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
@@ -214,41 +218,72 @@ class MouseRegionApp(QWidget):
 
         center_layout = QHBoxLayout()
 
-        # coords
+        # --- COORDS GROUP ---
         coords_group = QGroupBox("Coords (Ctrl+B)")
         coords_layout = QVBoxLayout(coords_group)
+        
+        # Table setup
         self.coord_table = QTableWidget(0, 4)
         self.coord_table.setHorizontalHeaderLabels(["ID", "Name", "X", "Y"])
         self.coord_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.coord_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.coord_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
         self.coord_table.itemChanged.connect(self._on_coords_item_changed)
+        
+        # HIDE ID COLUMN (Column 0)
+        self.coord_table.setColumnHidden(0, True)
+
         coords_layout.addWidget(self.coord_table)
 
-        btn_del_coord = QPushButton("Delete Selected Coord")
+        # Buttons Layout
+        c_btn_layout = QHBoxLayout()
+        btn_del_coord = QPushButton("Delete Selected")
         btn_del_coord.clicked.connect(self._delete_selected_coord)
-        coords_layout.addWidget(btn_del_coord)
+        c_btn_layout.addWidget(btn_del_coord)
+
+        btn_del_all_coord = QPushButton("Delete All") # Nút xóa tất cả
+        btn_del_all_coord.clicked.connect(self._delete_all_coords)
+        btn_del_all_coord.setStyleSheet("color: red;")
+        c_btn_layout.addWidget(btn_del_all_coord)
+
+        coords_layout.addLayout(c_btn_layout)
         center_layout.addWidget(coords_group, 1)
 
-        # regions
+        # --- REGIONS GROUP ---
         regions_group = QGroupBox("Regions (Ctrl+P)")
         regions_layout = QVBoxLayout(regions_group)
+        
+        # Table setup
         self.region_table = QTableWidget(0, 7)
-        self.region_table.setHorizontalHeaderLabels(["ID", "Name", "Description", "X1", "Y1", "Width", "Height"])
+        self.region_table.setHorizontalHeaderLabels(["ID", "Name", "Description", "X1", "Y1", "W", "H"])
         self.region_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.region_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.region_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
         self.region_table.itemChanged.connect(self._on_regions_item_changed)
+
+        # HIDE ID (Col 0) AND DESCRIPTION (Col 2)
+        self.region_table.setColumnHidden(0, True)
+        self.region_table.setColumnHidden(2, True)
+
         regions_layout.addWidget(self.region_table)
 
-        btn_del_region = QPushButton("Delete Selected Region")
+        # Buttons Layout
+        r_btn_layout = QHBoxLayout()
+        btn_del_region = QPushButton("Delete Selected")
         btn_del_region.clicked.connect(self._delete_selected_region)
-        regions_layout.addWidget(btn_del_region)
+        r_btn_layout.addWidget(btn_del_region)
+
+        btn_del_all_region = QPushButton("Delete All") # Nút xóa tất cả
+        btn_del_all_region.clicked.connect(self._delete_all_regions)
+        btn_del_all_region.setStyleSheet("color: red;")
+        r_btn_layout.addWidget(btn_del_all_region)
+
+        regions_layout.addLayout(r_btn_layout)
         center_layout.addWidget(regions_group, 1)
 
         main.addLayout(center_layout)
 
-        instr = QLabel("Instr: Ctrl+B → save coord. Ctrl+P → save region (2 presses). ESC to cancel region creation.")
+        instr = QLabel("Instr: Ctrl+B → save coord. Ctrl+P → save region (2 presses). ESC to cancel.")
         instr.setAlignment(Qt.AlignCenter)
         main.addWidget(instr)
 
@@ -290,6 +325,7 @@ class MouseRegionApp(QWidget):
     def _insert_coord_row(self, rid, name, x, y):
         r = self.coord_table.rowCount()
         self.coord_table.insertRow(r)
+        # Cột ID vẫn insert để code nhận biết dòng nào là ID nào, nhưng UI đã ẩn cột này
         id_item = QTableWidgetItem(str(rid))
         id_item.setFlags(id_item.flags() & ~Qt.ItemIsEditable)
         self.coord_table.setItem(r, 0, id_item)
@@ -300,6 +336,7 @@ class MouseRegionApp(QWidget):
     def _insert_region_row(self, rid, name, desc, x1, y1, width, height):
         r = self.region_table.rowCount()
         self.region_table.insertRow(r)
+        # Cột ID và Desc vẫn insert data nhưng bị ẩn (hidden)
         id_item = QTableWidgetItem(str(rid))
         id_item.setFlags(id_item.flags() & ~Qt.ItemIsEditable)
         self.region_table.setItem(r, 0, id_item)
@@ -338,29 +375,32 @@ class MouseRegionApp(QWidget):
             self.region_stage = 1
             self.region_temp_point = (x, y)
             self.region_stage_time = time.time()
-            self.status_label.setText(f"Status: Region point1 saved ({x},{y}). Press Ctrl+P again or ESC/Ctrl+B to cancel.")
+            self.status_label.setText(f"Status: Region point1 ({x},{y}). Press Ctrl+P again to finish.")
             return
         elif self.region_stage == 1:
             x1, y1 = self.region_temp_point
             x2, y2 = x, y
+            # Chuẩn hóa để x1, y1 luôn là góc trên trái
+            rx = min(x1, x2)
+            ry = min(y1, y2)
             width = abs(x2 - x1)
             height = abs(y2 - y1)
 
-            dlg = RegionDialog(default_name=f"region_{int(time.time())}", default_description=f"w={width}, h={height}", parent=self)
+            dlg = RegionDialog(default_name=f"region_{int(time.time())}", default_description="", parent=self)
             res = dlg.exec_()
             if res == QDialog.Accepted:
                 name, desc = dlg.get_data()
                 if not name:
-                    QMessageBox.warning(self, "Invalid", "Region name is required. Region not saved.")
+                    QMessageBox.warning(self, "Invalid", "Region name is required.")
                     self._reset_region_state()
                     return
-                rid = self.db.add_region(name, desc, x1, y1, width, height)
+                rid = self.db.add_region(name, desc, rx, ry, width, height)
                 self._suppress_regions_changed = True
-                self._insert_region_row(rid, name, desc, x1, y1, width, height)
+                self._insert_region_row(rid, name, desc, rx, ry, width, height)
                 self._suppress_regions_changed = False
-                self.status_label.setText(f"Status: Region '{name}' saved (ID {rid}).")
+                self.status_label.setText(f"Status: Region '{name}' saved.")
             else:
-                self.status_label.setText("Status: Region creation canceled by user.")
+                self.status_label.setText("Status: Region creation canceled.")
             self._reset_region_state()
 
     def _hotkey_escape(self):
@@ -380,14 +420,14 @@ class MouseRegionApp(QWidget):
     def _check_region_timeout(self):
         if self.region_stage == 1 and self.region_stage_time:
             if time.time() - self.region_stage_time > 30:
-                self._cancel_region("Cancelled: region creation timed out (30s)")
+                self._cancel_region("Cancelled: region creation timed out")
 
     # ---------------- Table edit handlers ----------------
     def _on_coords_item_changed(self, item):
         if self._suppress_coords_changed:
             return
         row = item.row()
-        id_item = self.coord_table.item(row, 0)
+        id_item = self.coord_table.item(row, 0) # Cột 0 là ID (đang ẩn)
         if not id_item:
             return
         try:
@@ -396,7 +436,7 @@ class MouseRegionApp(QWidget):
             x = int(self.coord_table.item(row, 2).text())
             y = int(self.coord_table.item(row, 3).text())
         except Exception:
-            QMessageBox.warning(self, "Invalid", "Coord fields invalid (X,Y must be integers). Reverting.")
+            QMessageBox.warning(self, "Invalid", "Coord fields invalid.")
             self._load_coords()
             return
         self.db.update_coord(rid, name, x, y)
@@ -406,19 +446,19 @@ class MouseRegionApp(QWidget):
         if self._suppress_regions_changed:
             return
         row = item.row()
-        id_item = self.region_table.item(row, 0)
+        id_item = self.region_table.item(row, 0) # Cột 0 là ID (đang ẩn)
         if not id_item:
             return
         try:
             rid = int(id_item.text())
             name = self.region_table.item(row, 1).text()
-            desc = self.region_table.item(row, 2).text()
+            desc = self.region_table.item(row, 2).text() # Cột 2 Desc (đang ẩn)
             x1 = int(self.region_table.item(row, 3).text())
             y1 = int(self.region_table.item(row, 4).text())
             width = int(self.region_table.item(row, 5).text())
             height = int(self.region_table.item(row, 6).text())
         except Exception:
-            QMessageBox.warning(self, "Invalid", "Region fields invalid (must be integers). Reverting.")
+            QMessageBox.warning(self, "Invalid", "Region fields invalid.")
             self._load_regions()
             return
         self.db.update_region(rid, name, desc, x1, y1, width, height)
@@ -431,11 +471,19 @@ class MouseRegionApp(QWidget):
             QMessageBox.warning(self, "Select Row", "Please select a coord row to delete.")
             return
         rid = int(self.coord_table.item(row, 0).text())
-        if QMessageBox.question(self, "Confirm Delete", f"Delete coord ID {rid}?", QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
+        if QMessageBox.question(self, "Confirm", f"Delete coord ID {rid}?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+            self.db.delete_coord(rid)
+            self.coord_table.removeRow(row)
+            self.status_label.setText(f"Status: Coord ID {rid} deleted.")
+
+    def _delete_all_coords(self):
+        count = self.coord_table.rowCount()
+        if count == 0:
             return
-        self.db.delete_coord(rid)
-        self.coord_table.removeRow(row)
-        self.status_label.setText(f"Status: Coord ID {rid} deleted.")
+        if QMessageBox.question(self, "Confirm Delete All", f"Are you sure you want to delete ALL {count} coordinates?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+            self.db.delete_all_coords()
+            self.coord_table.setRowCount(0)
+            self.status_label.setText("Status: All coords deleted.")
 
     def _delete_selected_region(self):
         row = self.region_table.currentRow()
@@ -443,11 +491,19 @@ class MouseRegionApp(QWidget):
             QMessageBox.warning(self, "Select Row", "Please select a region row to delete.")
             return
         rid = int(self.region_table.item(row, 0).text())
-        if QMessageBox.question(self, "Confirm Delete", f"Delete region ID {rid}?", QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
+        if QMessageBox.question(self, "Confirm", f"Delete region ID {rid}?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+            self.db.delete_region(rid)
+            self.region_table.removeRow(row)
+            self.status_label.setText(f"Status: Region ID {rid} deleted.")
+
+    def _delete_all_regions(self):
+        count = self.region_table.rowCount()
+        if count == 0:
             return
-        self.db.delete_region(rid)
-        self.region_table.removeRow(row)
-        self.status_label.setText(f"Status: Region ID {rid} deleted.")
+        if QMessageBox.question(self, "Confirm Delete All", f"Are you sure you want to delete ALL {count} regions?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+            self.db.delete_all_regions()
+            self.region_table.setRowCount(0)
+            self.status_label.setText("Status: All regions deleted.")
 
     # ---------------- Close ----------------
     def closeEvent(self, event):

@@ -6,7 +6,14 @@ import time
 import pydirectinput
 import os
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# --- IMPORT FILE VARIABLE ---
+import variable 
+
+# CHỌN LAYOUT (PROFILE) BẠN MUỐN TEST Ở ĐÂY
+# Đảm bảo class Layout_161 đã được điền đầy đủ thông số trong file variable.py
+cfg = variable.Layout_161 
+
+pytesseract.pytesseract.tesseract_cmd = variable.TESSERACT_CMD # Lấy đường dẫn từ file variable luôn
 
 def preprocess_image(image):
     # Resize the image for better accuracy (e.g., scaling by 1.5x)
@@ -52,6 +59,7 @@ def read_text(location):
     return text
 
 def calibrate_pointer(location):
+    print(f"Moving to: {location}")
     time.sleep(1)
     pydirectinput.moveTo(*location)
 
@@ -62,7 +70,9 @@ def click_on(location):
 def calibrate_text_box(location, box):
     time.sleep(1)
     pydirectinput.moveTo(*location)
-    print(read_text(box))
+    # Đọc text từ vùng box được truyền vào
+    print(f"Reading text at region: {box}")
+    print(f"Result: {read_text(box)}")
 
 def get_dominant_color_hex(path="screenshots\\screenshot_test.png", k=3):
     """
@@ -89,99 +99,81 @@ def get_dominant_color_hex(path="screenshots\\screenshot_test.png", k=3):
     rgb = tuple(int(x) for x in dominant_bgr[::-1])
     return "#{:02x}{:02x}{:02x}".format(*rgb)
 
-# Remove comment (#) on which function you want to use, enter the coords you want to test, then run
-# for pointer it will move mouse to the spot you selected in 2s. Check where it is, adjust, repeat
-# for text box it will try read the text and print the result. It will be failing at first so check the saved
-# screenshot to see what you captured, change the coords accordingly, repeat, until it reads the text correctly
-# the four value field is (starting x coord, starting y coord, width from starting x, height(down) from starting y)
-
-tower_icon = (780, 340)
-mod_icon = (1000, 980)
-mod_to_roll_icon = (850, 700)
-cannon_icon = (850, 250)
-armor_icon = (580, 350)
-core_icon = (1400, 400)
-generator_icon = (1400, 250)
-mod_options= (1115, 330)
-mod_options_debug= (1115, 320)
-reroll_effects = (1100, 360)
-verification_button_yes = (1070, 670)
-exit_tower_button = (775, 14)
-menu_button = (1790, 225)
-empty_space = (1400, 300)
-
-auto_reroll_button = (850, 710)
-auto_reroll_text = (845, 705, 120, 35)
-auto_reroll_text_161 = (835, 700, 150, 27)
-loading_screen_check = (870, 680, 150, 70)
-After_roll = {
-    "exit_icon": (1135, 350),
-    "check_icon": (1070, 950),
-    "SubLock1": {
-        "CheckSubstat": (774, 390, 170, 30),
-        "LockIcon": (1135, 390),
-        "LockIconImage": (1130, 385, 15, 15)
-    },
-    "SubLock2": {
-        "CheckSubstat": (774, 430, 170, 30),
-        "LockIcon": (1135, 430),
-        "LockIconImage": (1130, 425, 15, 15)
-    },
-    "SubLock3": {
-        "CheckSubstat": (774, 465, 170, 30),
-        "LockIcon": (1135, 470),
-        "LockIconImage": (1130, 465, 15, 15)
-    },
-    "SubLock4": {
-        "CheckSubstat": (774, 505, 170, 30),
-        "LockIcon": (1135, 510),
-        "LockIconImage": (1130, 505, 15, 15)
-    },
-    "SubLock5": {
-        "CheckSubstat": (774, 545, 100, 30),
-        "LockIcon": (1135, 550),
-        "LockIconImage": (1130, 545, 15, 15)
-    },
-    "SubLock6": {
-        "CheckSubstat": (774, 575, 70, 30),
-        "LockIcon": (1135, 590),
-        "LockIconImage": (1130, 585, 15, 15)
-    }
-}
-
-# (750, 375), (750, 375, 400, 35)
-# (750, 415), (750, 415, 400, 35)
-
-
+# ==========================================
+# CÁC HÀM TEST (ĐÃ CẬP NHẬT DÙNG BIẾN CFG)
+# ==========================================
+collected_subs = 0
 def check_location():
-    # calibrate_pointer(cannon_icon)
-    read_text(After_roll["SubLock1"]["LockIconImage"])
-    # calibrate_pointer(mod_options)
-    # calibrate_pointer(mod_options_debug)
-    # calibrate_text_box((745, 375), After_roll["SubLock6"]["LockIconImage"])
-    # print(get_dominant_color_hex())
-    # for i in range(1, 7):
-    #     read_text(After_roll[f"SubLock{i}"]["LockIconImage"])
-    #     # print(get_dominant_color_hex())
-    #     if get_dominant_color_hex() == '#494675' and "ances" in str(read_text(After_roll[f"SubLock{i}"]["CheckSubstat"])).lower():           
-    #         click_on(After_roll[f"SubLock{i}"]["LockIcon"])
-    # time.sleep(1)
-    # click_on(After_roll["exit_icon"])
-    # time.sleep(1)
-    # click_on(After_roll["check_icon"])
-    # time.sleep(1)
+    print(f"Checking location using profile: {cfg.__name__}")
+    
+    # Test đọc thử ảnh ổ khóa của Sub 1
+    # read_text(cfg.AFTER_ROLL_COORDS["SubLock1"]["LockIconImage"])
+    
+    # Test pointer location
+    calibrate_pointer(cfg.MOD_OPTIONS)
+    calibrate_pointer(cfg.MOD_OPTIONS_DEBUG)
+    
+    # Test text from image
+    calibrate_text_box((745, 375), cfg.AFTER_ROLL_COORDS["SubLock6"]["LockIconImage"])
+    
+    # print(f"Color: {get_dominant_color_hex()}")
+
+    # check all sub
+    collected = 0
+    for i in range(1, 7):
+        sub_key = f"SubLock{i}"
+        sub_data = cfg.AFTER_ROLL_COORDS[sub_key] # Lấy dict con từ file variable
+        
+        # Chụp ảnh vùng icon khóa để lấy màu
+        read_text(sub_data["LockIconImage"])
+        color = get_dominant_color_hex()
+        
+        # Đọc text substat
+        text_content = str(read_text(sub_data["CheckSubstat"])).lower()
+        
+        print(f"{sub_key}: {color}, {text_content}")
+        if color != '#494675':
+            collected += 1
+        if color == '#494675' and "ances" in text_content:          
+            print(f"--> Would click lock at: {sub_data['LockIcon']}")
+            click_on(sub_data["LockIcon"])
+    if collected <= 5:
+        collected = 0
+    else:
+        global collected_subs
+        print(f"Total collected subs: {collected}")
+        collected_subs = collected
+        print(f"Total collected subs (global): {collected_subs}")
 
 def click_test():
-    click_on(mod_to_roll_icon)
+    print("Running click test...")
+    # Các biến này lấy từ file variable.py thông qua cfg
+    click_on(cfg.MOD_TO_ROLL_ICON)
     time.sleep(1)
-    click_on(mod_options_debug)
-    click_on(mod_options)
+    
+    click_on(cfg.MOD_OPTIONS_DEBUG)
+    # click_on(cfg.MOD_OPTIONS) # Có thể bỏ comment nếu cần test cả 2
     time.sleep(1)
-    click_on(reroll_effects)
+    
+    click_on(cfg.REROLL_EFFECTS)
     time.sleep(1)
-    calibrate_pointer(auto_reroll_button)
+    
+    calibrate_pointer(cfg.AUTO_REROLL_BUTTON)
+
+# --- KHU VỰC CHẠY LỆNH ---
+
+# remove comment in test line:
 
 check_location()
-# click_test()
-# read_text(After_roll["SubLock1"]["LockIconImage"])
+# print(collected_subs)
+# time.sleep(1)
+# sub_key = f"SubLock{5}"
+# sub_data = cfg.AFTER_ROLL_COORDS[sub_key] # Lấy dict con từ file variable
+
+# print(read_text(sub_data["CheckSubstat"]))
+# print(get_dominant_color_hex())
+# click_test()s
+
+# Test lẻ một giá trị:
+# read_text(cfg.AFTER_ROLL_COORDS["SubLock1"]["LockIconImage"])
 # print(get_dominant_color_hex())
