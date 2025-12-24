@@ -1,0 +1,11 @@
+# Giấu file cấu hình chứa API Key
+.env
+
+# Giấu các thư mục rác của Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Giấu thư mục môi trường ảo (nếu có)
+venv/
+.venv/

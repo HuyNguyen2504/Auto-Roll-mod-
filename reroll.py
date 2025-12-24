@@ -6,11 +6,33 @@ import cv2
 import numpy as np
 import os
 import variable
+import requests
+import sys
+import io
+from dotenv import load_dotenv
+cfg = variable.Layout_241  # <--- IMPORT FILE SETTINGS 
 
-cfg = variable.Layout_161  # <--- IMPORT FILE SETTINGS 
+# Ép hệ thống in ra chuẩn UTF-8 để không bị lỗi 'charmap'
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Cấu hình Tesseract từ file settings
 pytesseract.pytesseract.tesseract_cmd = variable.TESSERACT_CMD
+
+def send_to_iphone(title, content):
+    # Thay 'Your_Key' bằng mã số bạn thấy trong app Bark trên iPhone
+    device_key = os.getenv("BARK_DEVICE_KEY")
+    
+    # Cấu trúc URL của Bark: https://api.day.app/{key}/{title}/{content}
+    url = f"https://api.day.app/{device_key}/{title}/{content}"
+    
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            print("Notification sent successfully!")
+        else:
+            print("Error!")
+    except Exception as e:
+        print(f"Error 404: {e}")
 
 def preprocess_image(image):
     # Resize the image for better accuracy
@@ -69,32 +91,33 @@ def check_substat():
     data = cfg.AFTER_ROLL_COORDS
     collected = 0
     verified = 0
-    for i in range(1, 7):
+    for i in range(1, len(data) - 1):  # Trừ 2 vì có 2 key không phải SubLock
         sub_key = f"SubLock{i}"
         read_text(data[sub_key]["LockIconImage"])
         
         current_color = get_dominant_color_hex()
-        print(f"Checking {sub_key}: {current_color}")
+        # print(f"Checking {sub_key}: {current_color}")
         
         # Đọc text
         text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()
         print(f"sub{i}: {current_color}, {text_content}")
         if current_color != '#494675':
             collected += 1
-        if current_color == '#494675' and "ances" in text_content:
-             print(f"--> Locking {sub_key}")
+        elif current_color == '#494675' and "ances" in text_content:
+            #  print(f"--> Locking {sub_key}")
              collected +=1
              click_location(data[sub_key]["LockIcon"])
         if "myth" in text_content:
             verified += 1
+    global verify
     if verified > 0:
-        global verify
         verify = True
-    if collected <= 5:
-        collected = 0
     else:
+        verify = False
+    if collected >= 6:
         global collected_subs
         collected_subs = collected
+        print(f"Total collected subs (global): {collected_subs}")
              
     time.sleep(1)
     click_location(data["exit_icon"])
@@ -126,52 +149,55 @@ def reroll_after_saved():
 
 
 # --- MAIN EXECUTION ---
+def start_bot():
+    time.sleep(1)
 
-time.sleep(1)
-
-while True:
-    print("Starting main loop.")
-    
-    # 1. Open the tower
-    click_location(cfg.TOWER_ICON)
-    time.sleep(20)
-    
-    # 2. Check loading screen
-    result = read_text(cfg.LOADING_SCREEN_CHECK_REGION).lower()
-    while "techtree" in result:
-        time.sleep(5)
+    while True:
+        # print("Starting main loop.")
+        
+        # 1. Open the tower
+        click_location(cfg.TOWER_ICON)
+        time.sleep(20)
+        
+        # 2. Check loading screen
         result = read_text(cfg.LOADING_SCREEN_CHECK_REGION).lower()
-        # print(f"Loading status: {result}") 
-        
-    # 3. Open mods & select cannon
-    click_location(cfg.MOD_ICON)
-    time.sleep(1)
-    click_location(cfg.MOD_TO_ROLL_ICON)
-    time.sleep(1)
+        while "techtree" in result:
+            time.sleep(5)
+            result = read_text(cfg.LOADING_SCREEN_CHECK_REGION).lower()
+            # print(f"Loading status: {result}") 
+        time.sleep(3)    
+        # 3. Open mods & select cannon
+        click_location(cfg.MOD_ICON)
+        time.sleep(1)
+        click_location(cfg.MOD_TO_ROLL_ICON)
+        time.sleep(1)
 
-    # 4. Open mod options (Double click fix)
-    click_location(cfg.MOD_OPTIONS_DEBUG)
-    
-    # Gọi hàm reroll lần đầu
-    reroll_after_saved()
+        # 4. Open mod options (Double click fix)
+        click_location(cfg.MOD_OPTIONS_DEBUG)
+        
+        # Gọi hàm reroll lần đầu
+        reroll_after_saved()
 
-    # 5. Loop Reroll logic
-    result = read_text(cfg.AUTO_REROLL_TEXT_REGION).lower()
-    # print(f"Reroll text detected: {result}")
-    
-    while "reroll" in result:
-        check_substat()
-        # print(f"Subs collected: {collected_subs}/{variable.TARGET_SUBS}")
-        
-        reroll_after_saved() # Gọi hàm không cần tham số
-        
+        # 5. Loop Reroll logic
         result = read_text(cfg.AUTO_REROLL_TEXT_REGION).lower()
+        # print(f"Reroll text detected: {result}")
         
-    # 6. Exit condition
-    if collected_subs >= variable.TARGET_SUBS:
-        # print("Đã đủ số lượng sub. Dừng script.")
-        break
-        
-    click_location(cfg.EXIT_TOWER_BUTTON)
-    print("Finished loop, exiting and repeating.")
-    time.sleep(3)
+        while "reroll" in result:
+            check_substat()
+            # print(f"Subs collected: {collected_subs}/{variable.TARGET_SUBS}")
+            
+            reroll_after_saved() # Gọi hàm không cần tham số
+            
+            result = read_text(cfg.AUTO_REROLL_TEXT_REGION).lower()
+            
+        # 6. Exit condition
+        if collected_subs >= cfg.TARGET_SUBS:
+            send_to_iphone("Reroll Completed", f"Collected {collected_subs} subs, stopping script.")
+            break
+            
+        click_location(cfg.EXIT_TOWER_BUTTON)
+        # print("Finished loop, exiting and repeating.")
+        time.sleep(4)
+
+if __name__ == "__main__":
+    start_bot()

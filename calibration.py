@@ -5,13 +5,34 @@ import pytesseract
 import time
 import pydirectinput
 import os
+import requests
+import sys
+import io
+from dotenv import load_dotenv
+
+def send_to_iphone(title, content):
+    # Thay 'Your_Key' bằng mã số bạn thấy trong app Bark trên iPhone
+    device_key = os.getenv("BARK_DEVICE_KEY") 
+    
+    # Cấu trúc URL của Bark: https://api.day.app/{key}/{title}/{content}
+    url = f"https://api.day.app/{device_key}/{title}/{content}"
+    
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            print("Notification sent successfully!")
+        else:
+            print("Error!")
+    except Exception as e:
+        print(f"Error 404: {e}")
 
 # --- IMPORT FILE VARIABLE ---
-import variable 
+import variable
+from reroll import cfg as reroll_cfg
 
 # CHỌN LAYOUT (PROFILE) BẠN MUỐN TEST Ở ĐÂY
-# Đảm bảo class Layout_161 đã được điền đầy đủ thông số trong file variable.py
-cfg = variable.Layout_161 
+cfg = reroll_cfg
+# cfg = variable.Layout_241  # <--- IMPORT FILE SETTINGS
 
 pytesseract.pytesseract.tesseract_cmd = variable.TESSERACT_CMD # Lấy đường dẫn từ file variable luôn
 
@@ -104,30 +125,28 @@ def get_dominant_color_hex(path="screenshots\\screenshot_test.png", k=3):
 # ==========================================
 collected_subs = 0
 def check_location():
-    print(f"Checking location using profile: {cfg.__name__}")
-    
+    # print(f"Checking location using profile: {cfg.__name__}")
     # Test đọc thử ảnh ổ khóa của Sub 1
     # read_text(cfg.AFTER_ROLL_COORDS["SubLock1"]["LockIconImage"])
-    
     # Test pointer location
     calibrate_pointer(cfg.MOD_OPTIONS)
     calibrate_pointer(cfg.MOD_OPTIONS_DEBUG)
     
     # Test text from image
-    calibrate_text_box((745, 375), cfg.AFTER_ROLL_COORDS["SubLock6"]["LockIconImage"])
+    # calibrate_text_box((745, 375), cfg.AFTER_ROLL_COORDS["SubLock6"]["LockIconImage"])
     
     # print(f"Color: {get_dominant_color_hex()}")
 
     # check all sub
     collected = 0
-    for i in range(1, 7):
+    for i in range(1, len(cfg.AFTER_ROLL_COORDS) - 1):  # Trừ 2 vì có 2 key không phải SubLock
         sub_key = f"SubLock{i}"
         sub_data = cfg.AFTER_ROLL_COORDS[sub_key] # Lấy dict con từ file variable
         
         # Chụp ảnh vùng icon khóa để lấy màu
         read_text(sub_data["LockIconImage"])
         color = get_dominant_color_hex()
-        
+        calibrate_pointer(sub_data["LockIcon"])
         # Đọc text substat
         text_content = str(read_text(sub_data["CheckSubstat"])).lower()
         
@@ -141,9 +160,9 @@ def check_location():
         collected = 0
     else:
         global collected_subs
-        print(f"Total collected subs: {collected}")
+        # print(f"Total collected subs: {collected}")
         collected_subs = collected
-        print(f"Total collected subs (global): {collected_subs}")
+        # print(f"Total collected subs (global): {collected_subs}")
 
 def click_test():
     print("Running click test...")
@@ -163,16 +182,19 @@ def click_test():
 # --- KHU VỰC CHẠY LỆNH ---
 
 # remove comment in test line:
-
+print(read_text(cfg.AUTO_REROLL_TEXT_REGION))
 check_location()
+if collected_subs >= 6:
+    send_to_iphone("Reroll Test", f"Collected {collected_subs} subs during test.")
+# print(len(cfg.AFTER_ROLL_COORDS))
 # print(collected_subs)
 # time.sleep(1)
-# sub_key = f"SubLock{5}"
+# sub_key = f"SubLock{7}"
 # sub_data = cfg.AFTER_ROLL_COORDS[sub_key] # Lấy dict con từ file variable
 
 # print(read_text(sub_data["CheckSubstat"]))
 # print(get_dominant_color_hex())
-# click_test()s
+# click_test()
 
 # Test lẻ một giá trị:
 # read_text(cfg.AFTER_ROLL_COORDS["SubLock1"]["LockIconImage"])
