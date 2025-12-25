@@ -10,7 +10,8 @@ import requests
 import sys
 import io
 from dotenv import load_dotenv
-cfg = variable.Layout_241  # <--- IMPORT FILE SETTINGS 
+load_dotenv()
+cfg = variable.Layout_241_with_bans  # <--- IMPORT FILE SETTINGS 
 
 # Ép hệ thống in ra chuẩn UTF-8 để không bị lỗi 'charmap'
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -20,7 +21,7 @@ pytesseract.pytesseract.tesseract_cmd = variable.TESSERACT_CMD
 
 def send_to_iphone(title, content):
     # Thay 'Your_Key' bằng mã số bạn thấy trong app Bark trên iPhone
-    device_key = os.getenv("BARK_DEVICE_KEY")
+    device_key = os.getenv("BARK_KEY")
     
     # Cấu trúc URL của Bark: https://api.day.app/{key}/{title}/{content}
     url = f"https://api.day.app/{device_key}/{title}/{content}"

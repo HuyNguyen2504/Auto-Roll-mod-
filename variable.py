@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 # --- MAIN SETTING ---
-
+load_dotenv()
 TESSERACT_CMD = os.getenv("TESSERACT_PATH") #Change this to your Tesseract installation path
 VERIFY = False       
 ROLL_TIME = 30        
@@ -161,7 +161,8 @@ class Layout_241_with_bans:
         "SubLock3": {"CheckSubstat": (774, 467, 61, 13), "LockIcon": (1135, 475), "LockIconImage": (1130, 467, 15, 15)},
         "SubLock4": {"CheckSubstat": (774, 504, 65, 13), "LockIcon": (1135, 516), "LockIconImage": (1130, 504, 15, 15)},
         "SubLock5": {"CheckSubstat": (774, 541, 64, 13), "LockIcon": (1135, 553), "LockIconImage": (1130, 541, 15, 15)},
-        "SubLock6": {"CheckSubstat": (774, 585, 63, 11),  "LockIcon": (1135, 588), "LockIconImage": (1130, 580, 15, 15)}
+        "SubLock6": {"CheckSubstat": (774, 580, 63, 15),  "LockIcon": (1135, 588), "LockIconImage": (1130, 580, 15, 15)},
+        "SubLock7": {"CheckSubstat": (774, 617, 63, 17),  "LockIcon": (1135, 626), "LockIconImage": (1130, 615, 15, 15)}
     }
 
 # --- PROFILE 161 (BẠN CẦN ĐIỀN TỌA ĐỘ MỚI VÀO ĐÂY) ---

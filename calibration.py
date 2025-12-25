@@ -12,8 +12,7 @@ from dotenv import load_dotenv
 
 def send_to_iphone(title, content):
     # Thay 'Your_Key' bằng mã số bạn thấy trong app Bark trên iPhone
-    device_key = os.getenv("BARK_DEVICE_KEY") 
-    
+    device_key = os.getenv("BARK_KEY") 
     # Cấu trúc URL của Bark: https://api.day.app/{key}/{title}/{content}
     url = f"https://api.day.app/{device_key}/{title}/{content}"
     
@@ -193,6 +192,7 @@ if collected_subs >= 6:
 # sub_data = cfg.AFTER_ROLL_COORDS[sub_key] # Lấy dict con từ file variable
 
 # print(read_text(sub_data["CheckSubstat"]))
+# read_text(sub_data["LockIconImage"])
 # print(get_dominant_color_hex())
 # click_test()
 
