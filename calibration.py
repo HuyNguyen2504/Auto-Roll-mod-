@@ -123,13 +123,15 @@ def get_dominant_color_hex(path="screenshots\\screenshot_test.png", k=3):
 # CÁC HÀM TEST (ĐÃ CẬP NHẬT DÙNG BIẾN CFG)
 # ==========================================
 collected_subs = 0
+Locked_subs = list(range(1, len(cfg.AFTER_ROLL_COORDS) - 1))
+
 def check_location():
     # print(f"Checking location using profile: {cfg.__name__}")
     # Test đọc thử ảnh ổ khóa của Sub 1
     # read_text(cfg.AFTER_ROLL_COORDS["SubLock1"]["LockIconImage"])
     # Test pointer location
-    calibrate_pointer(cfg.MOD_OPTIONS)
-    calibrate_pointer(cfg.MOD_OPTIONS_DEBUG)
+    # calibrate_pointer(cfg.MOD_OPTIONS)
+    # calibrate_pointer(cfg.MOD_OPTIONS_DEBUG)
     
     # Test text from image
     # calibrate_text_box((745, 375), cfg.AFTER_ROLL_COORDS["SubLock6"]["LockIconImage"])
@@ -138,26 +140,28 @@ def check_location():
 
     # check all sub
     collected = 0
+    sub_data = cfg.AFTER_ROLL_COORDS# Lấy dict con từ file variable
     for i in range(1, len(cfg.AFTER_ROLL_COORDS) - 1):  # Trừ 2 vì có 2 key không phải SubLock
         sub_key = f"SubLock{i}"
-        sub_data = cfg.AFTER_ROLL_COORDS[sub_key] # Lấy dict con từ file variable
-        
-        # Chụp ảnh vùng icon khóa để lấy màu
-        read_text(sub_data["LockIconImage"])
+        if i not in Locked_subs:
+            continue
+        # Đọc text
+        text_content = str(read_text(sub_data[sub_key]["CheckSubstat"])).lower()        
+        if ("anc" not in text_content):
+            continue
+        # Đọc màu
+        read_text(sub_data[sub_key]["LockIconImage"])
         color = get_dominant_color_hex()
-        calibrate_pointer(sub_data["LockIcon"])
-        # Đọc text substat
-        text_content = str(read_text(sub_data["CheckSubstat"])).lower()
-        
+        # print(f"Checking {sub_key}: {current_color}")
+        calibrate_pointer(sub_data[sub_key]["LockIcon"])
         print(f"{sub_key}: {color}, {text_content}")
         if color != '#494675':
             collected += 1
-        if color == '#494675' and "ances" in text_content:          
-            print(f"--> Would click lock at: {sub_data['LockIcon']}")
-            click_on(sub_data["LockIcon"])
-    if collected <= 5:
-        collected = 0
-    else:
+        if color == '#494675' and "anc" in text_content:          
+            print(f"--> Would click lock at: {sub_data[sub_key]['LockIcon']}")
+            # click_on(sub_data["LockIcon"])
+            collected += 1
+            Locked_subs.remove(i)
         global collected_subs
         # print(f"Total collected subs: {collected}")
         collected_subs = collected
@@ -178,24 +182,55 @@ def click_test():
     
     calibrate_pointer(cfg.AUTO_REROLL_BUTTON)
 
+def Sub_locked():
+    data = cfg.AFTER_ROLL_COORDS
+    global Locked_subs
+    collected = 0 
+    for i in range(1, len(data) - 1):  
+        sub_key = f"SubLock{i}"
+        # Đọc text
+        text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()        
+        if ("anc" not in text_content):
+            continue
+        # Đọc màu
+        read_text(data[sub_key]["LockIconImage"])
+        current_color = get_dominant_color_hex()
+        # print(f"Checking {sub_key}: {current_color}")
+        if "anc" in text_content and current_color != '#494675' :
+             Locked_subs.remove(i)   
+             print(f"sub{i}")
+             collected += 1
+    return collected
+
+def Check_sub(sub_index):
+    sub_key = f"SubLock{sub_index}"
+    sub_data = cfg.AFTER_ROLL_COORDS[sub_key] # Lấy dict con từ file variable
+    print(read_text(sub_data["CheckSubstat"]))
+    calibrate_pointer(sub_data["LockIcon"])
+    # read_text(sub_data["LockIconImage"])
+    # print(get_dominant_color_hex())
+
 # --- KHU VỰC CHẠY LỆNH ---
 
 # remove comment in test line:
-print(read_text(cfg.AUTO_REROLL_TEXT_REGION))
-check_location()
-if collected_subs >= 6:
-    send_to_iphone("Reroll Test", f"Collected {collected_subs} subs during test.")
-# print(len(cfg.AFTER_ROLL_COORDS))
-# print(collected_subs)
-# time.sleep(1)
-# sub_key = f"SubLock{7}"
-# sub_data = cfg.AFTER_ROLL_COORDS[sub_key] # Lấy dict con từ file variable
+# print(read_text(cfg.AUTO_REROLL_TEXT_REGION))
+if __name__ == "__main__":
+    print(Locked_subs)
+    collected = Sub_locked()
+    print(f"Total locked subs: {collected}")
+    print(f"Remaining Locked_subs: {Locked_subs}")
+    check_location()
+    sum = collected_subs + collected
+    print(f"Total collected subs: {sum}")
+    # if sum >= 6:
+    #     send_to_iphone("Reroll Test", f"Collected {collected_subs} subs during test.")
+    # print(len(cfg.AFTER_ROLL_COORDS))
+    # print(collected_subs)
+    # time.sleep(1)
+    # Check_sub(6)
 
-# print(read_text(sub_data["CheckSubstat"]))
-# read_text(sub_data["LockIconImage"])
-# print(get_dominant_color_hex())
-# click_test()
+    # click_test()
 
-# Test lẻ một giá trị:
-# read_text(cfg.AFTER_ROLL_COORDS["SubLock1"]["LockIconImage"])
-# print(get_dominant_color_hex())
+    # Test lẻ một giá trị:
+    # read_text(cfg.AFTER_ROLL_COORDS["SubLock1"]["LockIconImage"])
+    # print(get_dominant_color_hex())

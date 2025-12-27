@@ -134,7 +134,7 @@ class Layout_201:
 # --- PROFILE 241 (CẤU HÌNH HIỆN TẠI CỦA BẠN) ---
 class Layout_241_with_bans:
     # Coordinates
-    TARGET_SUBS = 6
+    TARGET_SUBS = 7
     TOWER_ICON = (780, 340)
     MOD_ICON = (1000, 980)
     MOD_TO_ROLL_ICON = MOD_LOCATION["Core_ass"]
@@ -201,10 +201,10 @@ class Layout_161_with_bans:
 # --- PROFILE 201 (BẠN CẦN ĐIỀN TỌA ĐỘ MỚI VÀO ĐÂY) ---
 class Layout_201_with_bans:
     # Coordinates
-    TARGET_SUBS = 6
+    TARGET_SUBS = 7
     TOWER_ICON = (780, 340)
     MOD_ICON = (1000, 980)
-    MOD_TO_ROLL_ICON = (1051, 598)
+    MOD_TO_ROLL_ICON = MOD_LOCATION["Mod_2_1"]
 
     MOD_OPTIONS = (1087, 345)
     MOD_OPTIONS_DEBUG = (1089, 345)
@@ -223,10 +223,11 @@ class Layout_201_with_bans:
     AFTER_ROLL_COORDS = {
         "exit_icon": (1138, 377),
         "check_icon": (1032, 901),
-        "SubLock1": {"CheckSubstat": (774, 406, 72, 20), "LockIcon": (1135, 419), "LockIconImage": (1129, 406, 15, 15)},
-        "SubLock2": {"CheckSubstat": (774, 448, 73, 20), "LockIcon": (1135, 459), "LockIconImage": (1129, 447, 15, 15)},
-        "SubLock3": {"CheckSubstat": (774, 483, 71, 20), "LockIcon": (1135, 494), "LockIconImage": (1129, 483, 15, 15)},
-        "SubLock4": {"CheckSubstat": (774, 523, 74, 20), "LockIcon": (1135, 534), "LockIconImage": (1129, 520, 15, 15)},
-        "SubLock5": {"CheckSubstat": (776, 559, 72, 20), "LockIcon": (1135, 569), "LockIconImage": (1129, 559, 15, 15)},
-        "SubLock6": {"CheckSubstat": (774, 598, 70, 20),  "LockIcon": (1135, 606), "LockIconImage": (1129, 598, 15, 15)}
+        "SubLock1": {"CheckSubstat": (772, 406, 68, 20), "LockIcon": (1135, 419), "LockIconImage": (1129, 406, 15, 15)},
+        "SubLock2": {"CheckSubstat": (771, 445, 68, 20), "LockIcon": (1135, 459), "LockIconImage": (1129, 447, 15, 15)},
+        "SubLock3": {"CheckSubstat": (772, 483, 68, 20), "LockIcon": (1135, 494), "LockIconImage": (1129, 483, 15, 15)},
+        "SubLock4": {"CheckSubstat": (772, 524, 68, 17), "LockIcon": (1135, 534), "LockIconImage": (1129, 520, 15, 15)},
+        "SubLock5": {"CheckSubstat": (772, 562, 68, 17), "LockIcon": (1135, 569), "LockIconImage": (1129, 559, 15, 15)},
+        "SubLock6": {"CheckSubstat": (772, 598, 68, 20),  "LockIcon": (1135, 606), "LockIconImage": (1129, 598, 15, 15)},
+        "SubLock7": {"CheckSubstat": (772, 638, 68, 17),  "LockIcon": (1135, 645), "LockIconImage": (1129, 637, 15, 15)}
     }

@@ -11,7 +11,7 @@ import sys
 import io
 from dotenv import load_dotenv
 load_dotenv()
-cfg = variable.Layout_241_with_bans  # <--- IMPORT FILE SETTINGS 
+cfg = variable.Layout_201_with_bans  # <--- IMPORT FILE SETTINGS 
 
 # Ép hệ thống in ra chuẩn UTF-8 để không bị lỗi 'charmap'
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -85,46 +85,48 @@ def get_dominant_color_hex(path="screenshot_test.png", k=3):
     rgb = tuple(int(x) for x in dominant_bgr[::-1])
     return "#{:02x}{:02x}{:02x}".format(*rgb)
 
-collected_subs = 0
 verify = variable.VERIFY
+Locked_subs = list(range(1, len(cfg.AFTER_ROLL_COORDS) - 1))
 def check_substat():
     # Hàm này giờ tự lấy dữ liệu từ cfg.AFTER_ROLL_COORDS
     data = cfg.AFTER_ROLL_COORDS
     collected = 0
     verified = 0
-    for i in range(1, len(data) - 1):  # Trừ 2 vì có 2 key không phải SubLock
+    global Locked_subs
+    for i in range(1, len(data) - 1):  
+        if i not in Locked_subs:
+            continue
         sub_key = f"SubLock{i}"
+        # Đọc text
+        text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()        
+        if ("anc" not in text_content):
+            continue
+        # Đọc màu
         read_text(data[sub_key]["LockIconImage"])
-        
         current_color = get_dominant_color_hex()
         # print(f"Checking {sub_key}: {current_color}")
         
-        # Đọc text
-        text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()
         print(f"sub{i}: {current_color}, {text_content}")
         if current_color != '#494675':
             collected += 1
-        elif current_color == '#494675' and "ances" in text_content:
+        elif current_color == '#494675' and "anc" in text_content:
             #  print(f"--> Locking {sub_key}")
-             collected +=1
+             collected += 1
              click_location(data[sub_key]["LockIcon"])
+             Locked_subs.remove(i)
         if "myth" in text_content:
             verified += 1
     global verify
     if verified > 0:
         verify = True
     else:
-        verify = False
-    if collected >= 6:
-        global collected_subs
-        collected_subs = collected
-        print(f"Total collected subs (global): {collected_subs}")
-             
+        verify = False             
     time.sleep(1)
     click_location(data["exit_icon"])
     time.sleep(1)
     click_location(data["check_icon"])
-    time.sleep(1)
+    time.sleep(2)
+    return collected
  
 def reroll_after_saved():
     """
@@ -148,12 +150,32 @@ def reroll_after_saved():
         
     time.sleep(variable.ROLL_TIME)    
 
+def Sub_locked():
+    data = cfg.AFTER_ROLL_COORDS
+    global Locked_subs
+    collected = 0 
+    for i in range(1, len(data) - 1):  
+        sub_key = f"SubLock{i}"
+        # Đọc text
+        text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()        
+        if ("anc" not in text_content) or ("anc" in text_content and i not in Locked_subs):
+            continue
+        # Đọc màu
+        read_text(data[sub_key]["LockIconImage"])
+        current_color = get_dominant_color_hex()
+        # print(f"Checking {sub_key}: {current_color}")
+        if current_color != '#494675' and "anc" in text_content:
+             Locked_subs.remove(i)   
+             collected += 1
+    return collected
 
+Sub_checked = False
 # --- MAIN EXECUTION ---
 def start_bot():
     time.sleep(1)
-
-    while True:
+    check = True
+    collected = 0
+    while check:
         # print("Starting main loop.")
         
         # 1. Open the tower
@@ -172,10 +194,15 @@ def start_bot():
         time.sleep(1)
         click_location(cfg.MOD_TO_ROLL_ICON)
         time.sleep(1)
-
+        global Sub_checked
         # 4. Open mod options (Double click fix)
         click_location(cfg.MOD_OPTIONS_DEBUG)
-        
+        if(Sub_checked == False):
+            click_location(cfg.MOD_OPTIONS_DEBUG)
+            click_location(cfg.REROLL_EFFECTS)
+            collected = Sub_locked()
+            Sub_checked = True
+            click_location(cfg.AFTER_ROLL_COORDS["exit_icon"])
         # Gọi hàm reroll lần đầu
         reroll_after_saved()
 
@@ -184,18 +211,16 @@ def start_bot():
         # print(f"Reroll text detected: {result}")
         
         while "reroll" in result:
-            check_substat()
+            collected_subs = check_substat() + collected 
             # print(f"Subs collected: {collected_subs}/{variable.TARGET_SUBS}")
-            
+            if collected_subs >= cfg.TARGET_SUBS:
+                send_to_iphone("Reroll Completed", f"Collected {collected_subs} subs, stopping script.")
+                check = False
+                break            
             reroll_after_saved() # Gọi hàm không cần tham số
-            
             result = read_text(cfg.AUTO_REROLL_TEXT_REGION).lower()
             
         # 6. Exit condition
-        if collected_subs >= cfg.TARGET_SUBS:
-            send_to_iphone("Reroll Completed", f"Collected {collected_subs} subs, stopping script.")
-            break
-            
         click_location(cfg.EXIT_TOWER_BUTTON)
         # print("Finished loop, exiting and repeating.")
         time.sleep(4)
