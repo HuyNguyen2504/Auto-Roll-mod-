@@ -11,7 +11,7 @@ import sys
 import io
 from dotenv import load_dotenv
 load_dotenv()
-cfg = variable.Layout_201_with_bans  # <--- IMPORT FILE SETTINGS 
+cfg = variable.Layout_241_with_bans  # <--- IMPORT FILE SETTINGS 
 
 # Ép hệ thống in ra chuẩn UTF-8 để không bị lỗi 'charmap'
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -86,14 +86,14 @@ def get_dominant_color_hex(path="screenshot_test.png", k=3):
     return "#{:02x}{:02x}{:02x}".format(*rgb)
 
 verify = variable.VERIFY
-Locked_subs = list(range(1, len(cfg.AFTER_ROLL_COORDS) - 1))
+Locked_subs = list(range(1, cfg.TARGET_SUBS + 1))
 def check_substat():
     # Hàm này giờ tự lấy dữ liệu từ cfg.AFTER_ROLL_COORDS
     data = cfg.AFTER_ROLL_COORDS
     collected = 0
     verified = 0
     global Locked_subs
-    for i in range(1, len(data) - 1):  
+    for i in range(1, cfg.TARGET_SUBS + 1):  
         if i not in Locked_subs:
             continue
         sub_key = f"SubLock{i}"
@@ -154,7 +154,7 @@ def Sub_locked():
     data = cfg.AFTER_ROLL_COORDS
     global Locked_subs
     collected = 0 
-    for i in range(1, len(data) - 1):  
+    for i in range(1, cfg.TARGET_SUBS + 1):  
         sub_key = f"SubLock{i}"
         # Đọc text
         text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()        
@@ -219,7 +219,8 @@ def start_bot():
                 break            
             reroll_after_saved() # Gọi hàm không cần tham số
             result = read_text(cfg.AUTO_REROLL_TEXT_REGION).lower()
-            
+        if not check:
+            continue    
         # 6. Exit condition
         click_location(cfg.EXIT_TOWER_BUTTON)
         # print("Finished loop, exiting and repeating.")

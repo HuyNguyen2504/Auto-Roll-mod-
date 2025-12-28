@@ -134,10 +134,10 @@ class Layout_201:
 # --- PROFILE 241 (CẤU HÌNH HIỆN TẠI CỦA BẠN) ---
 class Layout_241_with_bans:
     # Coordinates
-    TARGET_SUBS = 7
+    TARGET_SUBS = 6
     TOWER_ICON = (780, 340)
     MOD_ICON = (1000, 980)
-    MOD_TO_ROLL_ICON = MOD_LOCATION["Core_ass"]
+    MOD_TO_ROLL_ICON = MOD_LOCATION["Mod_1_4"]
 
     MOD_OPTIONS = (1115, 330)
     MOD_OPTIONS_DEBUG = (1115, 320)

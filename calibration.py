@@ -123,7 +123,7 @@ def get_dominant_color_hex(path="screenshots\\screenshot_test.png", k=3):
 # CÁC HÀM TEST (ĐÃ CẬP NHẬT DÙNG BIẾN CFG)
 # ==========================================
 collected_subs = 0
-Locked_subs = list(range(1, len(cfg.AFTER_ROLL_COORDS) - 1))
+Locked_subs = list(range(1, cfg.TARGET_SUBS + 1))
 
 def check_location():
     # print(f"Checking location using profile: {cfg.__name__}")
@@ -141,7 +141,7 @@ def check_location():
     # check all sub
     collected = 0
     sub_data = cfg.AFTER_ROLL_COORDS# Lấy dict con từ file variable
-    for i in range(1, len(cfg.AFTER_ROLL_COORDS) - 1):  # Trừ 2 vì có 2 key không phải SubLock
+    for i in range(1, cfg.TARGET_SUBS + 1):  # Trừ 2 vì có 2 key không phải SubLock
         sub_key = f"SubLock{i}"
         if i not in Locked_subs:
             continue
@@ -152,7 +152,7 @@ def check_location():
         # Đọc màu
         read_text(sub_data[sub_key]["LockIconImage"])
         color = get_dominant_color_hex()
-        # print(f"Checking {sub_key}: {current_color}")
+        print(f"Checking {sub_key}: {color}")
         calibrate_pointer(sub_data[sub_key]["LockIcon"])
         print(f"{sub_key}: {color}, {text_content}")
         if color != '#494675':
@@ -186,7 +186,7 @@ def Sub_locked():
     data = cfg.AFTER_ROLL_COORDS
     global Locked_subs
     collected = 0 
-    for i in range(1, len(data) - 1):  
+    for i in range(1, cfg.TARGET_SUBS + 1):  
         sub_key = f"SubLock{i}"
         # Đọc text
         text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()        
@@ -195,7 +195,7 @@ def Sub_locked():
         # Đọc màu
         read_text(data[sub_key]["LockIconImage"])
         current_color = get_dominant_color_hex()
-        # print(f"Checking {sub_key}: {current_color}")
+        print(f"Checking {sub_key}: {current_color}, text: {text_content}")
         if "anc" in text_content and current_color != '#494675' :
              Locked_subs.remove(i)   
              print(f"sub{i}")
