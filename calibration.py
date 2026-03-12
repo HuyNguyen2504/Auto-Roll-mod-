@@ -141,7 +141,7 @@ def check_location():
     # check all sub
     collected = 0
     sub_data = cfg.AFTER_ROLL_COORDS# Lấy dict con từ file variable
-    for i in range(1, cfg.TARGET_SUBS + 1):  # Trừ 2 vì có 2 key không phải SubLock
+    for i in Locked_subs:  # Trừ 2 vì có 2 key không phải SubLock
         sub_key = f"SubLock{i}"
         if i not in Locked_subs:
             continue
@@ -188,17 +188,13 @@ def Sub_locked():
     collected = 0 
     for i in range(1, cfg.TARGET_SUBS + 1):  
         sub_key = f"SubLock{i}"
-        # Đọc text
-        text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()        
-        if ("anc" not in text_content):
-            continue
         # Đọc màu
         read_text(data[sub_key]["LockIconImage"])
         current_color = get_dominant_color_hex()
-        print(f"Checking {sub_key}: {current_color}, text: {text_content}")
-        if "anc" in text_content and current_color != '#494675' :
+        print(f"Checking {sub_key}: {current_color}")
+        if current_color != '#494675' :
              Locked_subs.remove(i)   
-             print(f"sub{i}")
+            #  print(f"sub{i}")
              collected += 1
     return collected
 

@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 TESSERACT_CMD = os.getenv("TESSERACT_PATH") #Change this to your Tesseract installation path
 VERIFY = False       
-ROLL_TIME = 30        
+ROLL_TIME = 30
 MOD_LOCATION = {
     "Mod_1_1": (753, 586),
     "Mod_1_2": (872, 589),
@@ -37,7 +37,7 @@ class Layout_241:
     TARGET_SUBS = 7
     TOWER_ICON = (780, 340)
     MOD_ICON = (1000, 980)
-    MOD_TO_ROLL_ICON = MOD_LOCATION["Cannon_ass"]
+    MOD_TO_ROLL_ICON = MOD_LOCATION["Cannon_main"]
 
     MOD_OPTIONS = (1115, 330)
     MOD_OPTIONS_DEBUG = (1115, 320)
@@ -49,7 +49,7 @@ class Layout_241:
     EMPTY_SPACE = (1400, 300)
 
     # Regions
-    AUTO_REROLL_TEXT_REGION = (833, 735, 147, 25)
+    AUTO_REROLL_TEXT_REGION = (830, 730, 153, 30)
     LOADING_SCREEN_CHECK_REGION = (870, 680, 150, 70)
 
     # Substats Dictionary
@@ -105,7 +105,6 @@ class Layout_201:
     TOWER_ICON = (780, 340)
     MOD_ICON = (1000, 980)
     MOD_TO_ROLL_ICON = MOD_LOCATION["Mod_2_2"]
-
     MOD_OPTIONS = (1087, 345)
     MOD_OPTIONS_DEBUG = (1089, 345)
     REROLL_EFFECTS = (1073, 388)
@@ -114,7 +113,6 @@ class Layout_201:
     EXIT_TOWER_BUTTON = (775, 14)
     MENU_BUTTON = (1790, 225)
     EMPTY_SPACE = (1400, 300)
-
     # Regions
     AUTO_REROLL_TEXT_REGION = (832, 715, 152, 26)
     LOADING_SCREEN_CHECK_REGION = (870, 680, 150, 70)
@@ -128,16 +126,16 @@ class Layout_201:
         "SubLock3": {"CheckSubstat": (774, 514, 63, 15), "LockIcon": (1135, 521), "LockIconImage": (1129, 514, 15, 15)},
         "SubLock4": {"CheckSubstat": (774, 553, 63, 15), "LockIcon": (1135, 561), "LockIconImage": (1129, 553, 15, 15)},
         "SubLock5": {"CheckSubstat": (774, 590, 66, 15), "LockIcon": (1135, 597), "LockIconImage": (1129, 590, 15, 15)},
-        "SubLock6": {"CheckSubstat": (776, 628, 63, 15),  "LockIcon": (1135, 634), "LockIconImage": (1129, 628, 15, 15)}
+        "SubLock6": {"CheckSubstat": (776, 628, 63, 15), "LockIcon": (1135, 634), "LockIconImage": (1129, 628, 15, 15)}
     }
 
 # --- PROFILE 241 (CẤU HÌNH HIỆN TẠI CỦA BẠN) ---
 class Layout_241_with_bans:
     # Coordinates
-    TARGET_SUBS = 6
+    TARGET_SUBS = 7
     TOWER_ICON = (780, 340)
     MOD_ICON = (1000, 980)
-    MOD_TO_ROLL_ICON = MOD_LOCATION["Mod_1_4"]
+    MOD_TO_ROLL_ICON = MOD_LOCATION["Generator_main"]
 
     MOD_OPTIONS = (1115, 330)
     MOD_OPTIONS_DEBUG = (1115, 320)
@@ -161,8 +159,8 @@ class Layout_241_with_bans:
         "SubLock3": {"CheckSubstat": (774, 467, 61, 13), "LockIcon": (1135, 475), "LockIconImage": (1130, 467, 15, 15)},
         "SubLock4": {"CheckSubstat": (774, 504, 65, 13), "LockIcon": (1135, 516), "LockIconImage": (1130, 504, 15, 15)},
         "SubLock5": {"CheckSubstat": (774, 541, 64, 13), "LockIcon": (1135, 553), "LockIconImage": (1130, 541, 15, 15)},
-        "SubLock6": {"CheckSubstat": (774, 580, 63, 15),  "LockIcon": (1135, 588), "LockIconImage": (1130, 580, 15, 15)},
-        "SubLock7": {"CheckSubstat": (774, 617, 63, 17),  "LockIcon": (1135, 626), "LockIconImage": (1130, 615, 15, 15)}
+        "SubLock6": {"CheckSubstat": (774, 580, 63, 15), "LockIcon": (1135, 588), "LockIconImage": (1130, 580, 15, 15)},
+        "SubLock7": {"CheckSubstat": (774, 617, 63, 17), "LockIcon": (1135, 626), "LockIconImage": (1130, 615, 15, 15)}
     }
 
 # --- PROFILE 161 (BẠN CẦN ĐIỀN TỌA ĐỘ MỚI VÀO ĐÂY) ---
@@ -171,7 +169,7 @@ class Layout_161_with_bans:
     TARGET_SUBS = 6
     TOWER_ICON = (780, 340)
     MOD_ICON = (1000, 980)
-    MOD_TO_ROLL_ICON = (1163, 601)
+    MOD_TO_ROLL_ICON = MOD_LOCATION["Armor_main"]
 
     MOD_OPTIONS = (1102, 365)
     MOD_OPTIONS_DEBUG = (1102, 365)
@@ -195,16 +193,16 @@ class Layout_161_with_bans:
         "SubLock3": {"CheckSubstat": (774, 504, 71, 20), "LockIcon": (1135, 511), "LockIconImage": (1129, 503, 15, 15)},
         "SubLock4": {"CheckSubstat": (774, 542, 74, 20), "LockIcon": (1135, 553), "LockIconImage": (1129, 541, 15, 15)},
         "SubLock5": {"CheckSubstat": (774, 579, 72, 20), "LockIcon": (1135, 584), "LockIconImage": (1129, 579, 15, 15)},
-        "SubLock6": {"CheckSubstat": (774, 617, 70, 20),  "LockIcon": (1135, 626), "LockIconImage": (1129, 615, 15, 15)}
+        "SubLock6": {"CheckSubstat": (774, 617, 70, 20), "LockIcon": (1135, 626), "LockIconImage": (1129, 615, 15, 15)}
     }
 
 # --- PROFILE 201 (BẠN CẦN ĐIỀN TỌA ĐỘ MỚI VÀO ĐÂY) ---
 class Layout_201_with_bans:
     # Coordinates
-    TARGET_SUBS = 7
+    TARGET_SUBS = 6
     TOWER_ICON = (780, 340)
     MOD_ICON = (1000, 980)
-    MOD_TO_ROLL_ICON = MOD_LOCATION["Mod_2_1"]
+    MOD_TO_ROLL_ICON = MOD_LOCATION["Cannon_main"]
 
     MOD_OPTIONS = (1087, 345)
     MOD_OPTIONS_DEBUG = (1089, 345)
@@ -228,6 +226,6 @@ class Layout_201_with_bans:
         "SubLock3": {"CheckSubstat": (772, 483, 68, 20), "LockIcon": (1135, 494), "LockIconImage": (1129, 483, 15, 15)},
         "SubLock4": {"CheckSubstat": (772, 524, 68, 17), "LockIcon": (1135, 534), "LockIconImage": (1129, 520, 15, 15)},
         "SubLock5": {"CheckSubstat": (772, 562, 68, 17), "LockIcon": (1135, 569), "LockIconImage": (1129, 559, 15, 15)},
-        "SubLock6": {"CheckSubstat": (772, 598, 68, 20),  "LockIcon": (1135, 606), "LockIconImage": (1129, 598, 15, 15)},
-        "SubLock7": {"CheckSubstat": (772, 638, 68, 17),  "LockIcon": (1135, 645), "LockIconImage": (1129, 637, 15, 15)}
+        "SubLock6": {"CheckSubstat": (772, 598, 68, 20), "LockIcon": (1135, 606), "LockIconImage": (1129, 598, 15, 15)},
+        "SubLock7": {"CheckSubstat": (772, 638, 68, 17), "LockIcon": (1135, 645), "LockIconImage": (1129, 637, 15, 15)}
     }

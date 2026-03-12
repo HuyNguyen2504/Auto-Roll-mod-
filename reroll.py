@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 load_dotenv()
 cfg = variable.Layout_241_with_bans  # <--- IMPORT FILE SETTINGS 
 
+MODS_TO_ROLL_ARRAY = ["Mod_3_1", "Mod_1_4"]
+
 # Ép hệ thống in ra chuẩn UTF-8 để không bị lỗi 'charmap'
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -87,15 +89,12 @@ def get_dominant_color_hex(path="screenshot_test.png", k=3):
 
 verify = variable.VERIFY
 Locked_subs = list(range(1, cfg.TARGET_SUBS + 1))
-def check_substat():
+def check_substat(Locked_subs):
     # Hàm này giờ tự lấy dữ liệu từ cfg.AFTER_ROLL_COORDS
     data = cfg.AFTER_ROLL_COORDS
     collected = 0
     verified = 0
-    global Locked_subs
-    for i in range(1, cfg.TARGET_SUBS + 1):  
-        if i not in Locked_subs:
-            continue
+    for i in Locked_subs:  
         sub_key = f"SubLock{i}"
         # Đọc text
         text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()        
@@ -143,29 +142,37 @@ def reroll_after_saved():
     
     # Start autoroll
     click_location(cfg.AUTO_REROLL_BUTTON)
-    
+    time.sleep(5)
     if verify:
         time.sleep(1)
         click_location(cfg.VERIFICATION_BUTTON_YES)
-        
-    time.sleep(variable.ROLL_TIME)    
+    # result = read_text(cfg.AUTO_REROLL_TEXT_REGION).lower()
+    # print(result)
+    # count = 0
+    # while "stop" in result:
+    #     result = read_text(cfg.AUTO_REROLL_TEXT_REGION).lower()
+    #     time.sleep(1)
+    #     count += 1
+    #     if count >= (variable.ROLL_TIME // 1.5):
+    #         break
+    time.sleep(variable.ROLL_TIME)
 
-def Sub_locked():
+def Sub_locked(Locked_subs):
     data = cfg.AFTER_ROLL_COORDS
-    global Locked_subs
     collected = 0 
     for i in range(1, cfg.TARGET_SUBS + 1):  
         sub_key = f"SubLock{i}"
         # Đọc text
-        text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()        
-        if ("anc" not in text_content) or ("anc" in text_content and i not in Locked_subs):
-            continue
+        # text_content = str(read_text(data[sub_key]["CheckSubstat"])).lower()        
+        # if ("anc" not in text_content) or ("anc" in text_content and i not in Locked_subs):
+        #     continue
         # Đọc màu
         read_text(data[sub_key]["LockIconImage"])
         current_color = get_dominant_color_hex()
         # print(f"Checking {sub_key}: {current_color}")
-        if current_color != '#494675' and "anc" in text_content:
+        if current_color != '#494675':
              Locked_subs.remove(i)   
+             print(f"Removing sub{i} from checking")
              collected += 1
     return collected
 
@@ -175,35 +182,29 @@ def start_bot():
     time.sleep(1)
     check = True
     collected = 0
+    collected_subs = 0
+    mod_index = 0
+    current_mod_index = 0
+    max_mod_index = len(MODS_TO_ROLL_ARRAY) - 1
+    global Sub_checked
+    cfg.MOD_TO_ROLL_ICON = variable.MOD_LOCATION[MODS_TO_ROLL_ARRAY[current_mod_index]]
+    Locked_subs = list(range(1, cfg.TARGET_SUBS + 1))
+    Locked_subs_copy = Locked_subs.copy()
+
     while check:
         # print("Starting main loop.")
-        
-        # 1. Open the tower
-        click_location(cfg.TOWER_ICON)
-        time.sleep(20)
-        
-        # 2. Check loading screen
-        result = read_text(cfg.LOADING_SCREEN_CHECK_REGION).lower()
-        while "techtree" in result:
-            time.sleep(5)
-            result = read_text(cfg.LOADING_SCREEN_CHECK_REGION).lower()
-            # print(f"Loading status: {result}") 
-        time.sleep(3)    
-        # 3. Open mods & select cannon
-        click_location(cfg.MOD_ICON)
-        time.sleep(1)
-        click_location(cfg.MOD_TO_ROLL_ICON)
-        time.sleep(1)
-        global Sub_checked
-        # 4. Open mod options (Double click fix)
-        click_location(cfg.MOD_OPTIONS_DEBUG)
+        # Open mod substat layout only once to count locked subs
+        # cfg.MOD_TO_ROLL_ICON = variable.MOD_LOCATION[MODS_TO_ROLL_ARRAY[current_mod_index]]
         if(Sub_checked == False):
-            click_location(cfg.MOD_OPTIONS_DEBUG)
+            # if(current_mod_index != 0):
+            #     click_location(cfg.MOD_OPTIONS_DEBUG)
+            click_location(cfg.MOD_OPTIONS)
             click_location(cfg.REROLL_EFFECTS)
-            collected = Sub_locked()
+            collected = Sub_locked(Locked_subs_copy)
+            collected_subs = collected
             Sub_checked = True
             click_location(cfg.AFTER_ROLL_COORDS["exit_icon"])
-        # Gọi hàm reroll lần đầu
+        # reroll process
         reroll_after_saved()
 
         # 5. Loop Reroll logic
@@ -211,20 +212,51 @@ def start_bot():
         # print(f"Reroll text detected: {result}")
         
         while "reroll" in result:
-            collected_subs = check_substat() + collected 
+            collected_subs += check_substat(Locked_subs_copy)
             # print(f"Subs collected: {collected_subs}/{variable.TARGET_SUBS}")
             if collected_subs >= cfg.TARGET_SUBS:
-                send_to_iphone("Reroll Completed", f"Collected {collected_subs} subs, stopping script.")
-                check = False
+                send_to_iphone(f"Reroll Completed on {MODS_TO_ROLL_ARRAY[current_mod_index]}", f"Collected {collected_subs} subs on {MODS_TO_ROLL_ARRAY[current_mod_index]}.")
+                check = False if mod_index >= max_mod_index else True
+                mod_index += 1
+                collected = 0
+                collected_subs = 0
+                Locked_subs_copy = Locked_subs.copy()  # Reset the copy for the next check
                 break            
-            reroll_after_saved() # Gọi hàm không cần tham số
+            reroll_after_saved() # Call the function again to reroll
             result = read_text(cfg.AUTO_REROLL_TEXT_REGION).lower()
+        if current_mod_index != mod_index:
+            print(f"Moving to next mod: {MODS_TO_ROLL_ARRAY[mod_index]}")
+            current_mod_index = mod_index
+            Sub_checked = False
+            cfg.MOD_TO_ROLL_ICON = variable.MOD_LOCATION[MODS_TO_ROLL_ARRAY[current_mod_index]]
         if not check:
             continue    
-        # 6. Exit condition
+        # Exit condition
         click_location(cfg.EXIT_TOWER_BUTTON)
         # print("Finished loop, exiting and repeating.")
         time.sleep(4)
+        
+        # Open the tower
+        click_location(cfg.TOWER_ICON)
+        time.sleep(20)
+        
+        # Check loading screen
+        result = read_text(cfg.LOADING_SCREEN_CHECK_REGION).lower()
+        while "techtree" in result:
+            time.sleep(5)
+            result = read_text(cfg.LOADING_SCREEN_CHECK_REGION).lower()
+            # print(f"Loading status: {result}") 
+        time.sleep(3)    
+        # Open mods & select mod
+        click_location(cfg.MOD_ICON)
+        time.sleep(1)
+        click_location(cfg.MOD_TO_ROLL_ICON)
+        time.sleep(1)
+  
+        # Open mod options (Double click fix)
+        click_location(cfg.MOD_OPTIONS_DEBUG)
 
 if __name__ == "__main__":
+
     start_bot()
+    # print(read_text(cfg.AUTO_REROLL_TEXT_REGION).lower())
