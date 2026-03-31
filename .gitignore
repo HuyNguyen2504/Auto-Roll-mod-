@@ -1,5 +1,7 @@
 # Giấu file cấu hình chứa API Key
 .env
+reroll_test.py
+reroll_UI_test.py
 
 # Giấu các thư mục rác của Python
 __pycache__/

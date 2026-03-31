@@ -5,6 +5,8 @@ load_dotenv()
 TESSERACT_CMD = os.getenv("TESSERACT_PATH") #Change this to your Tesseract installation path
 VERIFY = False       
 ROLL_TIME = 30
+VERIFICATION_BUTTON_YES = (1059, 657)
+VERIFICATION_BUTTON_YES_REGION = (990, 644, 127, 33)
 MOD_LOCATION = {
     "Mod_1_1": (753, 586),
     "Mod_1_2": (872, 589),

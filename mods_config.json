@@ -1,0 +1,117 @@
+{
+    "instructions": "Insert names of mods to be loaded in the 'data' array. The order of the mods in the array determines the load order, with the first mod being loaded first.",
+    "mod_loader_version": "1.0.0",
+    "type_of_mods": {
+        "Mod_1_1": [
+            753,
+            586
+        ],
+        "Mod_1_2": [
+            872,
+            589
+        ],
+        "Mod_1_3": [
+            963,
+            602
+        ],
+        "Mod_1_4": [
+            1053,
+            592
+        ],
+        "Mod_1_5": [
+            1166,
+            595
+        ],
+        "Mod_2_1": [
+            742,
+            695
+        ],
+        "Mod_2_2": [
+            858,
+            699
+        ],
+        "Mod_2_3": [
+            961,
+            694
+        ],
+        "Mod_2_4": [
+            1056,
+            694
+        ],
+        "Mod_2_5": [
+            1157,
+            696
+        ],
+        "Mod_3_1": [
+            762,
+            792
+        ],
+        "Mod_3_2": [
+            862,
+            802
+        ],
+        "Mod_3_3": [
+            970,
+            796
+        ],
+        "Mod_3_4": [
+            1064,
+            796
+        ],
+        "Mod_3_5": [
+            1162,
+            796
+        ],
+        "Cannon_main": [
+            837,
+            260
+        ],
+        "Cannon_ass": [
+            745,
+            260
+        ],
+        "Armor_main": [
+            837,
+            360
+        ],
+        "Armor_ass": [
+            732,
+            376
+        ],
+        "Generator_main": [
+            1070,
+            260
+        ],
+        "Generator_ass": [
+            1182,
+            250
+        ],
+        "Core_main": [
+            1085,
+            384
+        ],
+        "Core_ass": [
+            1183,
+            374
+        ]
+    },
+    "types_of_layouts": [
+        "Layout_161",
+        "Layout_161_with_bans",
+        "Layout_201",
+        "Layout_201_with_bans",
+        "Layout_241",
+        "Layout_241_with_bans"
+    ],
+    "format": [
+        {
+            "name": "mod_name",
+            "layout": "layout_name"
+        },
+        {
+            "name": "mod_name_2",
+            "layout": "layout_name_2"
+        }
+    ],
+    "data": []
+}

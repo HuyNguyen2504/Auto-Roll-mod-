@@ -120,7 +120,7 @@
   <li>
     <b>Python packages</b><br/>
     Install all required Python libraries used in this project.
-    You can use <b>ChatGPT</b> or <b>GitHub Copilot</b> to identify and install missing packages.
+    You can use <b>ChatGPT</b> or <b>GitHub Copilot</b> to identify and install missing packages in requirements.txt.
   </li>
 
   <li>
@@ -162,7 +162,7 @@ https://api.day.app/{device_key}/{title}/{content}
 <hr/>
 
 <h2>2️⃣ Calibration – Capture Mouse Coordinates</h2>
-
+<h3 style="color: gray">You can skip to step 5 if your pc/laptop is 1920x1080</h3>
 <h3>2.1 Open Calibration Tool</h3>
 
 <ul>
@@ -325,24 +325,29 @@ calibrate_pointer(cfg.MOD_OPTIONS)
   <li>
     Create a <code>.env</code> file in the same directory as <code>reroll.py</code>
   </li>
+  <li>Add this to .env file, copy your Bark Api and your tesseract path earlier, paste to this</li>
 </ul>
 
 <pre>
 BARK_KEY=your_bark_key
 TESSERACT_PATH=your_tesseract_path
 </pre>
-
 <ul>
   <li>
-    In <code>reroll.py</code>, change:
-    <pre>cfg = variable.Layout_241</pre>
-    to your desired layout (<code>161</code>, <code>201</code>, or <code>241</code>)
+      Open reroll_UI.py, run the program
   </li>
-
-  <li>In LDPlayer, choose exactly all the number of sub you want to roll in that "Select sub" type (either core, gen, ...), cloud save, exit the Tower and return to the main screen</li>
-  <li>Start the program, then quickly switch to LDPlayer</li>
+  <li>
+      You can choose Mod, your mod layout, time to roll(so it doesn't randomly spend all of your dice)
+  </li>
+  <li>
+      Add that mod to queue, you can delete it by type in mod id in queue. This queue is to queue up your mod to roll so you will be freehanded all days.
+  </li>
+  <li>
+      In LDPlayer, choose exactly all the number of sub you want to roll in that "Select sub" type (either core, gen, ...), cloud save, then exit back to the tab mod menu.
+    </li>
+  <li>
+      Start the program, then quickly switch to LDPlayer(if the running program block your ldplayer).</li>
 </ul>
-
 <p>
   🎉 Sit back, relax, and enjoy your fully rolled mod!  
   (It may take anywhere from <b>30 minutes to several hours</b>.)
